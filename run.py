@@ -5,6 +5,7 @@ import requests
 import math
 from tqdm import tqdm
 import shutil
+import os
 
 
 def get_config():
@@ -119,9 +120,13 @@ def main():
         #print(sample['ID'])
         
         sample_data = scrape_sample(cookie, x_auth, sample['ID'])
-        for wf in sample_data['EXECUTED-WORKFLOWS']:
-            fn = "sample_"+str(sample['ID'])+"__"+sample['IDAT']+"__"+sample['SAMPLE-NAME'].replace(" ","_")+"__executed-workflow_"+str(wf['ID'])+"__"+wf['WORKFLOW-NAME']+".zip"
-            download(cookie, x_auth , wf['ID'], fn)
+        if 'EXECUTED-WORKFLOWS' not in sample_data:
+            print ("warning - odd sample" + sample['IDAT'] + " " + sample['SAMPLE-NAME'])
+        else:
+            for wf in sample_data['EXECUTED-WORKFLOWS']:
+                fn = "cache/sample_"+str(sample['ID'])+"__"+sample['IDAT']+"__"+sample['SAMPLE-NAME'].replace(" ","_")+"__executed-workflow_"+str(wf['ID'])+"__"+wf['WORKFLOW-NAME']+".zip"
+                if not os.path.exists(fn):
+                    download(cookie, x_auth , wf['ID'], fn)
     
     
 
