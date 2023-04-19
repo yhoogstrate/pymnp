@@ -1,6 +1,9 @@
 MolecularNeuropathology batch downloader
 ----------------------------------------
 
+Python script for batch downloading reports present in the (brain)
+classifier portal at https://www.molecularneuropathology.org/mnp/
+
 ## Installation & usage
 
 ```
