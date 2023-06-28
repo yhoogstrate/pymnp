@@ -1,3 +1,4 @@
 setuptools>=45.0
 tqdm
 requests
+flask
