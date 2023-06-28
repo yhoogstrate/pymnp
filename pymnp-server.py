@@ -7,34 +7,44 @@ from tqdm import tqdm
 #from run import *
 
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your secret key'
-app.config['SAMPLES'] = []
+webapp = Flask(__name__)
+app = mnpscrape()
+app.login()
 
 
-@app.route('/')
+@webapp.route('/')
 def index():
-    return render_template('index.html', posts=app.config['SAMPLES'])
+    return render_template('index.html', nsamples=app._n_samples, posts=app.get_samples())
 
 
-@app.route('/scrape')
+def subsample(app, k):
+    sslice = {}
+    
+    i = 0
+    for key in app._samples:
+        if i < k:
+            sslice[key] = []
+        
+        for ss in app._samples[key]:
+            if i < k:
+                sslice[key].append(ss)
+            i += 1
+    
+    return sslice
+
+
+@webapp.route('/scrape')
 def scrape():
+    app.update_samples()
+    
+    app._samples = subsample(app, 15)
+    app._n_samples = 15
     
     
-    user, pwd = get_config()
-    x_auth, cookie = login(user, pwd)
-    cookie = cookie
+    for s in tqdm(app):
+        s.get_detailed_info(app)
+
     
-    n_samples = get_sample_count(cookie, x_auth)
-    #print("n_samples", n_samples)
+    print(app._samples)
     
-    app.config['SAMPLES'] = get_samples(cookie, x_auth, n_samples * 2)[0:5]
-    
-    n = len(app.config['SAMPLES'])
-    for i in tqdm(range(n)):
-        sample = app.config['SAMPLES'][i]
-        app.config['SAMPLES'][i] = scrape_sample(cookie, x_auth, sample['ID'])
-    
-    print(app.config['SAMPLES'])
-    
-    return render_template('scrape.html', posts=[])
+    return render_template('scrape.html', posts=[]) # trigger that updating has completed

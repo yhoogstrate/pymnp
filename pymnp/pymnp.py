@@ -157,7 +157,7 @@ class mnpscrape:
 
 
 
-    def get_samples(self):
+    def update_samples(self):
         n = self.get_sample_count() # for validation
         
         logging.info("Getting sample overview")
@@ -195,6 +195,14 @@ class mnpscrape:
         for idat in self._samples:
             for s in self._samples[idat]:
                 yield s
+    
+    def get_samples(self):
+        out = []
+        
+        for sample in self:
+            out.append(sample)
+        
+        return out
     
     def __len__(self):
         return self._n_samples

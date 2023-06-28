@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>{% block title %} Samples {% endblock %}</h1>
+    <h1>{% block title %} {{ nsamples }} Samples {% endblock %}</h1>
     
     
     <TABLE>
@@ -13,13 +13,13 @@
         
     {% for post in posts %}
         <TR>
-            <TD><span class="badge badge-primary">{{ post['SAMPLE-NAME'] }}</span></TD>
-            <TD><span class="badge badge-primary">{{ post['IDAT'] }}</span></TD>
-            <TD><span class="badge badge-primary">{{ post['CREATED-AT'] }}</span></TD>
+            <TD><span class="badge badge-primary">{{ post._name }}</span></TD>
+            <TD><span class="badge badge-primary">{{ post._idat }}</span></TD>
+            <TD><span class="badge badge-primary">{{ post._name }}</span></TD>
         </TR>
         <TR>
             <TD COLSPAN=3>
-                {% for wf in post['EXECUTED-WORKFLOWS'] %}
+                {% for wf in post._ext['EXECUTED-WORKFLOWS'] %}
                     <B STYLE="font-color: darkgreen">{{ wf['WORKFLOW-NAME'] }}: {{ wf['WORKFLOW-VERSION'] }}</B> [ <A HREF="">download</A> ]<BR />
                 {% endfor %}
             </TD>
@@ -27,7 +27,7 @@
         
         <TR>
             <TD COLSPAN=3>
-                {% for wf in post['AVAILABLE-WORKFLOWS'] %}
+                {% for wf in post._ext['AVAILABLE-WORKFLOWS'] %}
                     {{ wf['WORKFLOW-NAME'] }}: {{ wf['WORKFLOW-VERSION'] }}  [ <A HREF="">run</A> ] <BR />
                 {% endfor %}
             </TD>
