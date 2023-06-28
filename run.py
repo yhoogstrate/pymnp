@@ -104,8 +104,10 @@ def download(cookie, x_auth_token, fid, filename_out):
 def main():
     app = mnpscrape()
     app.login()
+    app.get_samples()
     
-    samples = app.get_samples()
+    for s in tqdm(app):
+        s.get_detailed_info(app)
     
     # user, pwd = get_config()
     # print("logging in with: "+ user)

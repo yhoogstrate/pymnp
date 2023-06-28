@@ -60,8 +60,9 @@ class sample:
     _chip_type = None
     _extraction_type = None
     
+    _ext = None
+    
     def __init__(self, s_idat, s_id, s_name, s_created_at, s_chip_type, s_extraction_type):
-        
         self._idat = s_idat
         self._id = s_id
         self._name = s_name
@@ -69,6 +70,18 @@ class sample:
         self._chip_type = s_chip_type
         self._extraction_type = s_extraction_type
 
+    def get_detailed_info(self, app):
+        response = requests.get('https://www.molecularneuropathology.org/api-v1/methylation-samples/details/'+str(self._id), 
+                headers={'Cookie': app._response_cookie ,
+                 'Content-Type':'application/json',
+                 'X-AUTH-TOKEN': app._response_x_auth})
+    
+        self._ext = response.json()
+
+
+
+    # return out
+        
     
 
 
@@ -84,6 +97,7 @@ class mnpscrape:
     _response1 = None # x-auth-token
     _response2 = None # cookie
     
+    _n_samples = 0
     _samples = {}
     
     
@@ -155,14 +169,18 @@ class mnpscrape:
         
         raw_out = response.json()
         
+        i = 0
         for _ in raw_out:
             s = sample(_['IDAT'], _['ID'], _['SAMPLE-NAME'], _['CREATED-AT'], _['CHIP-TYPE'], _['EXTRACTION-TYPE'])
             self.add_sample(s)
+            i += 1
+        
+        if i != n:
+            raise Exception(str(n) + " samples expected, only "+str(i)+" provided by the query")
         
         return n
 
     def add_sample(self, sample_s):
-        #print(sample_s._idat)
         
         if sample_s._idat in self._samples:
             log.warning("Duplicate -- " + sample_s._idat)
@@ -170,19 +188,21 @@ class mnpscrape:
             self._samples[sample_s._idat] = []
         
         self._samples[sample_s._idat].append(sample_s)
-
-
-
-# def scrape_sample(cookie, x_auth_token, sid):
-    # response = requests.get('https://www.molecularneuropathology.org/api-v1/methylation-samples/details/'+str(sid), headers={'Cookie': cookie,
-        # 'Content-Type':'application/json',
-        # 'X-AUTH-TOKEN': x_auth_token})
+        self._n_samples += 1
     
-    # out = response.json()
+    
+    def __iter__(self):
+        for idat in self._samples:
+            for s in self._samples[idat]:
+                yield s
+    
+    def __len__(self):
+        return self._n_samples
+
+    
+    
 
 
-
-    # return out
 
 
 
