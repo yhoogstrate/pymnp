@@ -8,6 +8,9 @@ import shutil
 import os
 
 
+from mnpscrape import *
+
+
 def get_config():
     user = False
     pwd = False
@@ -82,6 +85,8 @@ def scrape_sample(cookie, x_auth_token, sid):
     
     out = response.json()
 
+
+
     return out
 
 
@@ -97,40 +102,42 @@ def download(cookie, x_auth_token, fid, filename_out):
 
 
 def main():
-    user, pwd = get_config()
-    print("logging in with: "+ user)
+    app = mnpscrape()
+    app.login()
     
-    x_auth, cookie = login(user, pwd)
-    cookie = cookie
+    samples = app.get_samples()
+    
+    # user, pwd = get_config()
+    # print("logging in with: "+ user)
+    
+    # x_auth, cookie = login(user, pwd)
+    # cookie = cookie
     
     
     
 
-    n_samples = get_sample_count(cookie, x_auth)
+    # n_samples = get_sample_count(cookie, x_auth)
     
-    print("n-samples: " + str(n_samples))
+    # print("n-samples: " + str(n_samples))
     
-    #n_pages = int(math.ceil(float(n_samples) / 20.0 ))
+    # #n_pages = int(math.ceil(float(n_samples) / 20.0 ))
 
-    #print("n-samples: " + str(n_samples) + "  over " + str(n_pages)+ " pages")
+    # #print("n-samples: " + str(n_samples) + "  over " + str(n_pages)+ " pages")
     
-    samples = get_samples(cookie, x_auth, n_samples * 2)
-    for sample in tqdm(samples):
-        #print(sample)
-        #print(sample['ID'])
+    # samples = get_samples(cookie, x_auth, n_samples * 2)
+    # for sample in tqdm(samples):
+        # #print(sample)
+        # #print(sample['ID'])
         
-        sample_data = scrape_sample(cookie, x_auth, sample['ID'])
-        if 'EXECUTED-WORKFLOWS' not in sample_data:
-            print ("warning - odd sample" + sample['IDAT'] + " " + sample['SAMPLE-NAME'])
-        else:
-            for wf in sample_data['EXECUTED-WORKFLOWS']:
-                fn = "cache/sample_"+str(sample['ID'])+"__"+sample['IDAT']+"__"+sample['SAMPLE-NAME'].replace(" ","_")+"__executed-workflow_"+str(wf['ID'])+"__"+wf['WORKFLOW-NAME']+".zip"
-                if not os.path.exists(fn):
-                    download(cookie, x_auth , wf['ID'], fn)
+        # sample_data = scrape_sample(cookie, x_auth, sample['ID'])
+        # if 'EXECUTED-WORKFLOWS' not in sample_data:
+            # print ("warning - odd sample" + sample['IDAT'] + " " + sample['SAMPLE-NAME'])
+        # else:
+            # for wf in sample_data['EXECUTED-WORKFLOWS']:
+                # fn = "cache/sample_"+str(sample['ID'])+"__"+sample['IDAT']+"__"+sample['SAMPLE-NAME'].replace(" ","_")+"__executed-workflow_"+str(wf['ID'])+"__"+wf['WORKFLOW-NAME']+".zip"
+                # if not os.path.exists(fn):
+                    # download(cookie, x_auth , wf['ID'], fn)
     
-    
-
-
 
 main()
 

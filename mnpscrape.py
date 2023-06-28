@@ -6,6 +6,10 @@ import math
 from tqdm import tqdm
 import shutil
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger(__name__)
 
 
 class classifierWorkflowObj:
@@ -49,7 +53,23 @@ classifierWorkflows.add(classifierWorkflowObj( 131, "brain_classifier_v12.8_samp
 
 
 class sample:
-    pass
+    _idat = None
+    _id = None
+    _name = None
+    _created_at = None
+    _chip_type = None
+    _extraction_type = None
+    
+    def __init__(self, s_idat, s_id, s_name, s_created_at, s_chip_type, s_extraction_type):
+        
+        self._idat = s_idat
+        self._id = s_id
+        self._name = s_name
+        self._created_at = s_created_at
+        self._chip_type = s_chip_type
+        self._extraction_type = s_extraction_type
+
+    
 
 
 # most elegant way would be to have this class in four states:
@@ -64,10 +84,12 @@ class mnpscrape:
     _response1 = None # x-auth-token
     _response2 = None # cookie
     
-    _samples = None
+    _samples = {}
     
     
     def get_config(self):
+        logging.info("Reading credentials")
+        
         with open('config.txt', 'r') as fh:
             for line in fh:
                 line = line.strip().split("=",1)
@@ -87,65 +109,80 @@ class mnpscrape:
     def login(self):
         self.get_config()
         
-        print("[login]")
-        self._response1 = requests.post('https://www.molecularneuropathology.org/api-v1/authenticate', json = {"email": self._user,"password": self._pwd} )
-        print("x-auth:" + self._response1.json()['X-AUTH-TOKEN'])
-
-
-        self._response2 = requests.post('https://www.molecularneuropathology.org/authenticate', data = {"email":self._user,"password":self._pwd} )
-        print("cookie: " + self._response2.headers['Set-Cookie'])
+        logging.info("Authenticating to the portal")
+        self._response_x_auth = requests.post('https://www.molecularneuropathology.org/api-v1/authenticate', json = {"email": self._user,"password": self._pwd} ).json()['X-AUTH-TOKEN']
+        self._response_cookie = requests.post('https://www.molecularneuropathology.org/authenticate', data = {"email":self._user,"password":self._pwd} ).headers['Set-Cookie']
         
         # remove from memory, credentials have been used, respones are enough
         self._user = None
         self._pwd = None
+
+        logging.info("Authenticating to the portal: done")
         
         return True
 
 
     def get_sample_count(self):
+        logging.info("Getting number of samples listed")
         
-        print({'Cookie': cookie})
-        
-        response = requests.get('https://www.molecularneuropathology.org/api-v1/methylation-samples/count', headers={'Cookie': cookie,
-         'Content-Type':'application/json',
-         'X-AUTH-TOKEN': x_auth_token})
+        response = requests.get('https://www.molecularneuropathology.org/api-v1/methylation-samples/count', 
+                headers={'Cookie': self._response_cookie,
+                 'Content-Type':'application/json',
+                 'X-AUTH-TOKEN': self._response_x_auth})
         
         
         out = ""
         for _ in response.iter_lines():
             out += _.decode('utf-8')
         
+        
+        logging.info("Getting number of samples listed: " + out)
+        
+        
         return(int(out))
 
 
 
     def get_samples(self):
-        n = self.get_sample_count() + 2 # for validation
+        n = self.get_sample_count() # for validation
         
-        response = requests.get('https://www.molecularneuropathology.org/api-v1/methylation-samples/list/'+str(n)+'/0', headers={'Cookie': cookie,
-            'Content-Type':'application/json',
-            'X-AUTH-TOKEN': x_auth_token})
+        logging.info("Getting sample overview")
         
-        print(response)
-        out = response.json()
+        response = requests.get('https://www.molecularneuropathology.org/api-v1/methylation-samples/list/'+str(n)+'/0', 
+        headers={'Cookie': self._response_cookie ,
+                 'Content-Type':'application/json',
+                 'X-AUTH-TOKEN': self._response_x_auth})
         
-        #print("found: "+str(len(out))+ " samples")
+        raw_out = response.json()
         
-        return out
+        for _ in raw_out:
+            s = sample(_['IDAT'], _['ID'], _['SAMPLE-NAME'], _['CREATED-AT'], _['CHIP-TYPE'], _['EXTRACTION-TYPE'])
+            self.add_sample(s)
+        
+        return n
+
+    def add_sample(self, sample_s):
+        #print(sample_s._idat)
+        
+        if sample_s._idat in self._samples:
+            log.warning("Duplicate -- " + sample_s._idat)
+        else:
+            self._samples[sample_s._idat] = []
+        
+        self._samples[sample_s._idat].append(sample_s)
 
 
 
-
-def scrape_sample(cookie, x_auth_token, sid):
-    response = requests.get('https://www.molecularneuropathology.org/api-v1/methylation-samples/details/'+str(sid), headers={'Cookie': cookie,
-        'Content-Type':'application/json',
-        'X-AUTH-TOKEN': x_auth_token})
+# def scrape_sample(cookie, x_auth_token, sid):
+    # response = requests.get('https://www.molecularneuropathology.org/api-v1/methylation-samples/details/'+str(sid), headers={'Cookie': cookie,
+        # 'Content-Type':'application/json',
+        # 'X-AUTH-TOKEN': x_auth_token})
     
-    out = response.json()
+    # out = response.json()
 
 
 
-    return out
+    # return out
 
 
 
