@@ -13,7 +13,7 @@ cd MolecularNeuropathology-batch-downloader
 virtualenv -p python3 .venv
 source .venv/bin/activate
 
-pip install tqdm requests
+pip install -r requirements.txt -U .
 
 cp config.txt.example config.txt
 
