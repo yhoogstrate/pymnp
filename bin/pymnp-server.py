@@ -4,7 +4,7 @@ from pymnp.pymnp import *
 
 from flask import Flask, render_template
 from tqdm import tqdm
-from run import *
+#from run import *
 
 
 app = Flask(__name__)
