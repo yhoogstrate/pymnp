@@ -1,7 +1,7 @@
-MolecularNeuropathology batch downloader
-----------------------------------------
+pymnp - python API to access the MolecularNeuropathology web portal
+-------------------------------------------------------------------
 
-Python script for batch downloading reports present in the (brain)
+Python API for batch downloading reports present in the (brain)
 classifier portal at https://www.molecularneuropathology.org/mnp/
 
 ## Installation & usage
