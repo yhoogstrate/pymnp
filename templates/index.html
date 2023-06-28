@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Samples {% endblock %}</h1>
+    
+    
+    <TABLE>
+        <TR>
+            <TD><B>sentrix_id</B></TD>
+            <TD><B>name</B></TD>
+            <TD><B>created at</B></TD>
+        </TR>
+        
+    {% for post in posts %}
+        <TR>
+            <TD><span class="badge badge-primary">{{ post['SAMPLE-NAME'] }}</span></TD>
+            <TD><span class="badge badge-primary">{{ post['IDAT'] }}</span></TD>
+            <TD><span class="badge badge-primary">{{ post['CREATED-AT'] }}</span></TD>
+        </TR>
+        <TR>
+            <TD COLSPAN=3>
+                {% for wf in post['EXECUTED-WORKFLOWS'] %}
+                    <B STYLE="font-color: darkgreen">{{ wf['WORKFLOW-NAME'] }}: {{ wf['WORKFLOW-VERSION'] }}</B> [ <A HREF="">download</A> ]<BR />
+                {% endfor %}
+            </TD>
+        </TR>
+        
+        <TR>
+            <TD COLSPAN=3>
+                {% for wf in post['AVAILABLE-WORKFLOWS'] %}
+                    {{ wf['WORKFLOW-NAME'] }}: {{ wf['WORKFLOW-VERSION'] }}  [ <A HREF="">run</A> ] <BR />
+                {% endfor %}
+            </TD>
+        </TR>
+        <TR>
+            <TD COLSPAN=3>
+                <HR STYLE="1px dashed gray;">
+            </TD>
+        </TR>
+
+    {% endfor %}
+    
+    </TABLE>
+{% endblock %}
