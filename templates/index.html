@@ -8,36 +8,20 @@
         <TR>
             <TD><B>sentrix_id</B></TD>
             <TD><B>name</B></TD>
-            <TD COLSPAN="{{ wfs.__len__() }}">&nbsp;</TD>
-        </TR>
-        
-    {% for post in posts %}
-        <TR>
-            <TD><span class="badge badge-primary" title="{{ post._created_at }}">{{ post._name }}</span></TD>
-            <TD><span class="badge badge-primary" title="{{ post._created_at }}">{{ post._idat }}</span></TD>
+            <TD> &nbsp; </TD>
             {% for wf in wfs %}
                 <TD><span class="badge badge-primary"><NOBR>{{ wf._workflow_name_short }} v{{ wf._workflow_version }}</NOBR></span></TD>
             {% endfor %}
         </TR>
-        <TR>
-            <TD COLSPAN=3>
-                {% for wf in post._ext['EXECUTED-WORKFLOWS'] %}
-                    <B STYLE="font-color: darkgreen">{{ wf['WORKFLOW-NAME'] }}: {{ wf['WORKFLOW-VERSION'] }}</B> [ <A HREF="">download</A> ]<BR />
-                {% endfor %}
-            </TD>
-        </TR>
         
+    {% for post in posts %}
         <TR>
-            <TD COLSPAN=3>
-                {% for wf in post._ext['AVAILABLE-WORKFLOWS'] %}
-                    {{ wf['WORKFLOW-NAME'] }}: {{ wf['WORKFLOW-VERSION'] }}  [ <A HREF="">run</A> ] <BR />
-                {% endfor %}
-            </TD>
-        </TR>
-        <TR>
-            <TD COLSPAN=3>
-                <HR STYLE="1px dashed gray;">
-            </TD>
+            <TD><span title="{{ post._created_at }}"><NOBR>{{ post._name }}</NOBR></span></TD>
+            <TD><span title="{{ post._created_at }}"><NOBR>{{ post._idat }}</NOBR></span></TD>
+            <TD> &nbsp; </TD>
+            {% for wf in wfs %}
+                <TD><span class="badge badge-primary"><NOBR>{{ post._workflows[wf]['status'] }}</NOBR></span></TD>
+            {% endfor %}
         </TR>
 
     {% endfor %}

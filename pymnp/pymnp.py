@@ -64,6 +64,7 @@ classifierWorkflows.add(classifierWorkflowObj( 124, "brain_classifier_v11b4_samp
 classifierWorkflows.add(classifierWorkflowObj( 125, "brain_classifier_v11b4_sample_report", "3.3", "..." ))
 classifierWorkflows.add(classifierWorkflowObj( 126, "brain_classifier_v12.5_sample_report", "1.1", "..." ))
 classifierWorkflows.add(classifierWorkflowObj( 127, "skin_classifier_v0.1_research_report", "1.0", "..." ))
+classifierWorkflows.add(classifierWorkflowObj( 130, "brain_classifier_v12.8_sample_report", "1.0", "..." )) # should be unavailable
 classifierWorkflows.add(classifierWorkflowObj( 131, "brain_classifier_v12.8_sample_report", "1.1", "..." ))
 
 
@@ -78,7 +79,7 @@ class sample:
     _extraction_type = None
     
     _ext = None
-    _workflows = {}
+    _workflows = None
     
     def __init__(self, s_idat, s_id, s_name, s_created_at, s_chip_type, s_extraction_type):
         self._idat = s_idat
@@ -95,7 +96,32 @@ class sample:
                  'X-AUTH-TOKEN': app._response_x_auth})
     
         self._ext = response.json()
+        self._workflows = {}
 
+        print(self._ext.keys())
+        for wd in self._ext['AVAILABLE-WORKFLOWS']:
+            cwf = classifierWorkflows.get(wd['ID'])
+            
+            if cwf in self._workflows:
+                raise Exception("Duplicate workflow " + wd['ID'])
+            
+            self._workflows[cwf] = {'status':'available','jobs':[]}
+        
+        for wd in self._ext['EXECUTED-WORKFLOWS']:
+            print(wd)
+            
+            cwf = classifierWorkflows.get(wd['WORKFLOW-ID'])
+            
+            if cwf in self._workflows:
+                raise Exception("Duplicate workflow " + wd['WORKFLOW-ID'])
+            
+            self._workflows[cwf] = {'status':'done','jobs':[]}
+        
+        for wd in classifierWorkflows:
+            if wd not in self._workflows:
+                self._workflows[wd] = {'status':'unavailable','jobs':[]}
+        
+        print("---")
 
 
 
