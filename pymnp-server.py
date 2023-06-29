@@ -41,12 +41,15 @@ def subsample(app, k):
 def scrape():
     app.update_samples()
     
-    #app._samples = subsample(app, 15)
-    #app._n_samples = 15
+    k = 200
+    app._samples = subsample(app, k)
+    app._n_samples = k
     
     
     for s in tqdm(app):
         s.get_detailed_info(app)
 
+    # save
+    # https://www.digitalocean.com/community/tutorials/python-pickle-example
     
     return render_template('scrape.html', posts=[]) # trigger that updating has completed

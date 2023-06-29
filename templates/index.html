@@ -15,7 +15,7 @@
         </TR>
         
     {% for post in posts %}
-        <TR>
+        <TR style="border: 1px dashed gray;" VALIGN="top">
             <TD><span title="{{ post._created_at }}"><NOBR>{{ post._name }}</NOBR></span></TD>
             <TD><span title="{{ post._created_at }}"><NOBR>{{ post._idat }}</NOBR></span></TD>
             <TD> &nbsp; </TD>
@@ -23,9 +23,13 @@
                 {% if post._workflows[wf]['status'] == "available" %}
                     <TD><span class="badge badge-primary" style="background-color: darkgray;"><NOBR><A HREF="" TITLE="run">[<B>&#8594;</B>]</A></NOBR></span></TD>
                 {% elif post._workflows[wf]['status'] == "unavailable" %}
-                    <TD><span class="badge badge-primary" style="background-color: red;" title="unavailable"><NOBR>X</NOBR></span></TD>
+                    <TD><span class="badge badge-primary" style="background-color: red;" title="unavailable"><NOBR>--</NOBR></span></TD>
                 {% elif post._workflows[wf]['status'] == "done" %}
-                    <TD><NOBR><span class="badge badge-primary" style="background-color: darkgreen;">&#x2713;</span> <span class="badge badge-primary" style="background-color: darkgray;"><A HREF="" TITLE="redo">[&#8594;]</A></span></NOBR></TD>
+                    <TD><span class="badge badge-primary" style="background-color: darkgray;"><A HREF="" TITLE="redo">[&#8594;]</A></span>{% for job in post._workflows[wf]['jobs'].values() %}
+                        <BR />
+                        <span title="Job: {{ job._id }}">{% for task in job._status %}{% if task['STATUS'] == "complete" %}<span class="badge badge-primary" style="background-color: darkgreen;width:2px;font-size:10px;" TITLE="{{ task['TASK-NAME'] }}: {{ task['STATUS'] }}">&nbsp;</span>{% else %}<span class="badge badge-primary" style="background-color: orange;width:2px;font-size:10px;" TITLE="{{ task['TASK-NAME'] }}: {{ task['STATUS'] }}  -- {{ task['CREATED-AT'] }}">&nbsp;</span>{% endif %}{% endfor %}
+                        </span>
+                    {% endfor %}</TD>
                 {% else %}
                     <TD><span class="badge badge-primary"><NOBR>{{ post._workflows[wf]['status'] }}</NOBR></span></TD>
                 {% endif %}

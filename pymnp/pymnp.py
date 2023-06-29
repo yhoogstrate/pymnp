@@ -69,6 +69,24 @@ classifierWorkflows.add(classifierWorkflowObj(131, "brain_classifier_v12.8_sampl
 
 
 
+class job:
+    _id = None
+    _status = None
+    
+    def __init__(self, jobid):
+        self._id = jobid
+    
+    def get_detailed_info(self, app):
+        response = requests.get('https://www.molecularneuropathology.org/api-v1/workflow-run/'+str(self._id), 
+                headers={'Cookie': app._response_cookie ,
+                 'Content-Type':'application/json',
+                 'X-AUTH-TOKEN': app._response_x_auth})
+        
+        
+        self._status = response.json()['TASK-RUNS']
+        print(self._status)
+
+
 
 class sample:
     _idat = None
@@ -104,19 +122,22 @@ class sample:
             if cwf in self._workflows:
                 raise Exception("Duplicate workflow " + wd['ID'])
             
-            self._workflows[cwf] = {'status':'available','jobs':[]}
+            self._workflows[cwf] = {'status':'available','jobs':{}}
         
-        for wd in self._ext['EXECUTED-WORKFLOWS']:
+        for wd in self._ext['EXECUTED-WORKFLOWS']: # may contain duplicate entries - one for each finished job
             cwf = classifierWorkflows.get(wd['WORKFLOW-ID'])
             
-            if cwf in self._workflows:
-                raise Exception("Duplicate workflow " + wd['WORKFLOW-ID'])
+            if cwf not in self._workflows:
+                self._workflows[cwf] = {'status':'done','jobs':{}}
             
-            self._workflows[cwf] = {'status':'done','jobs':[]}
+            self._workflows[cwf]['jobs'][wd['ID']] = job(wd['ID'])
+            self._workflows[cwf]['jobs'][wd['ID']].get_detailed_info(app)
         
         for wd in classifierWorkflows:
             if wd not in self._workflows:
-                self._workflows[wd] = {'status':'unavailable','jobs':[]}
+                self._workflows[wd] = {'status':'unavailable','jobs': None}
+
+
 
 
 
@@ -217,7 +238,6 @@ class mnpscrape:
         return n
 
     def add_sample(self, sample_s):
-        
         if sample_s._idat in self._samples:
             log.warning("Duplicate -- " + sample_s._idat)
         else:
