@@ -14,7 +14,11 @@ app.login()
 
 @webapp.route('/')
 def index():
-    return render_template('index.html', nsamples=app._n_samples, posts=app.get_samples())
+    return render_template('index.html',
+        nsamples=app._n_samples,
+        posts=app.get_samples(),
+        wfs=classifierWorkflows.get_workflows()
+        )
 
 
 def subsample(app, k):

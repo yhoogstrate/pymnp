@@ -14,13 +14,15 @@ log = logging.getLogger(__name__)
 
 class classifierWorkflowObj:
     _workflow_id = None
-    _workflow_name = None
+    _workflow_name_full = None
+    _workflow_name_short = None
     _workflow_version = None
     _workflow_description = None
     
     def __init__(self, cw_id, cw_name, cw_version, cw_description):
         self._workflow_id = cw_id
-        self._workflow_name = cw_name
+        self._workflow_name_full = cw_name
+        self._workflow_name_short = cw_name.replace("_classifier","").replace("_report","")
         self._workflow_version = cw_version
         self._workflow_description = cw_description
         
@@ -36,6 +38,21 @@ class classifierWorkflowsObj:
             raise Exception("unknown workflow: " + str(w_id))
         else:
             return self._map[w_id]
+    
+    def __iter__(self):
+        for key in sorted(self._map.keys()):
+            yield self._map[key]
+    
+    def __len__(self):
+        return len(self._map)
+
+    def get_workflows(self):
+        out = []
+        
+        for _ in self:
+            out.append(_)
+        
+        return out
 
 
 classifierWorkflows = classifierWorkflowsObj()
@@ -61,6 +78,7 @@ class sample:
     _extraction_type = None
     
     _ext = None
+    _workflows = {}
     
     def __init__(self, s_idat, s_id, s_name, s_created_at, s_chip_type, s_extraction_type):
         self._idat = s_idat
@@ -80,9 +98,6 @@ class sample:
 
 
 
-    # return out
-        
-    
 
 
 # most elegant way would be to have this class in four states:
@@ -206,9 +221,6 @@ class mnpscrape:
     
     def __len__(self):
         return self._n_samples
-
-    
-    
 
 
 

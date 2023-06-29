@@ -8,14 +8,16 @@
         <TR>
             <TD><B>sentrix_id</B></TD>
             <TD><B>name</B></TD>
-            <TD><B>created at</B></TD>
+            <TD COLSPAN="{{ wfs.__len__() }}">&nbsp;</TD>
         </TR>
         
     {% for post in posts %}
         <TR>
-            <TD><span class="badge badge-primary">{{ post._name }}</span></TD>
-            <TD><span class="badge badge-primary">{{ post._idat }}</span></TD>
-            <TD><span class="badge badge-primary">{{ post._name }}</span></TD>
+            <TD><span class="badge badge-primary" title="{{ post._created_at }}">{{ post._name }}</span></TD>
+            <TD><span class="badge badge-primary" title="{{ post._created_at }}">{{ post._idat }}</span></TD>
+            {% for wf in wfs %}
+                <TD><span class="badge badge-primary"><NOBR>{{ wf._workflow_name_short }} v{{ wf._workflow_version }}</NOBR></span></TD>
+            {% endfor %}
         </TR>
         <TR>
             <TD COLSPAN=3>

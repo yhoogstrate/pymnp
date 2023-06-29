@@ -19,7 +19,7 @@ setup(
     url="https://github.com/yhoogstrate/pymnp",
     description="pymnp: python api for the MolecularNeuropathology web portal",
     version=VERSION.get("__version__", "0.0.0"),
-    scripts=['bin/api_example_download_all.py','bin/pymnp-server.py'],
+    scripts=['bin/api_example_download_all.py'],
     packages=find_packages(where=".", exclude=["tests"]),
     #install_requires=[],
     classifiers=[
