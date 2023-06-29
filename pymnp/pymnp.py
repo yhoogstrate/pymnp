@@ -22,7 +22,7 @@ class classifierWorkflowObj:
     def __init__(self, cw_id, cw_name, cw_version, cw_description):
         self._workflow_id = cw_id
         self._workflow_name_full = cw_name
-        self._workflow_name_short = cw_name.replace("_classifier","").replace("_report","")
+        self._workflow_name_short = cw_name.replace("_classifier","").replace("_report","").replace("_research","-R").replace("_sample","-S")
         self._workflow_version = cw_version
         self._workflow_description = cw_description
         
@@ -98,7 +98,6 @@ class sample:
         self._ext = response.json()
         self._workflows = {}
 
-        print(self._ext.keys())
         for wd in self._ext['AVAILABLE-WORKFLOWS']:
             cwf = classifierWorkflows.get(wd['ID'])
             
@@ -108,8 +107,6 @@ class sample:
             self._workflows[cwf] = {'status':'available','jobs':[]}
         
         for wd in self._ext['EXECUTED-WORKFLOWS']:
-            print(wd)
-            
             cwf = classifierWorkflows.get(wd['WORKFLOW-ID'])
             
             if cwf in self._workflows:
@@ -120,8 +117,6 @@ class sample:
         for wd in classifierWorkflows:
             if wd not in self._workflows:
                 self._workflows[wd] = {'status':'unavailable','jobs':[]}
-        
-        print("---")
 
 
 
@@ -193,8 +188,9 @@ class mnpscrape:
         
         logging.info("Getting number of samples listed: " + out)
         
+        out = int(out)
         
-        return int(out)
+        return out
 
 
 

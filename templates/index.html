@@ -6,11 +6,11 @@
     
     <TABLE>
         <TR>
-            <TD><B>sentrix_id</B></TD>
             <TD><B>name</B></TD>
+            <TD><B>sentrix_id</B></TD>
             <TD> &nbsp; </TD>
             {% for wf in wfs %}
-                <TD><span class="badge badge-primary"><NOBR>{{ wf._workflow_name_short }} v{{ wf._workflow_version }}</NOBR></span></TD>
+                <TD><span class="badge badge-primary" title="{{ wf._workflow_name_full }}"><NOBR>{{ wf._workflow_name_short }} v{{ wf._workflow_version }}</NOBR></span></TD>
             {% endfor %}
         </TR>
         
@@ -20,7 +20,16 @@
             <TD><span title="{{ post._created_at }}"><NOBR>{{ post._idat }}</NOBR></span></TD>
             <TD> &nbsp; </TD>
             {% for wf in wfs %}
-                <TD><span class="badge badge-primary"><NOBR>{{ post._workflows[wf]['status'] }}</NOBR></span></TD>
+                {% if post._workflows[wf]['status'] == "available" %}
+                    <TD><span class="badge badge-primary" style="background-color: darkgray;"><NOBR><A HREF="" TITLE="run">[<B>&#8594;</B>]</A></NOBR></span></TD>
+                {% elif post._workflows[wf]['status'] == "unavailable" %}
+                    <TD><span class="badge badge-primary" style="background-color: red;" title="unavailable"><NOBR>X</NOBR></span></TD>
+                {% elif post._workflows[wf]['status'] == "done" %}
+                    <TD><NOBR><span class="badge badge-primary" style="background-color: darkgreen;">&#x2713;</span> <span class="badge badge-primary" style="background-color: darkgray;"><A HREF="" TITLE="redo">[&#8594;]</A></span></NOBR></TD>
+                {% else %}
+                    <TD><span class="badge badge-primary"><NOBR>{{ post._workflows[wf]['status'] }}</NOBR></span></TD>
+                {% endif %}
+                
             {% endfor %}
         </TR>
 
