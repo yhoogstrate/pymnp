@@ -165,6 +165,20 @@ class sample:
         for wd in classifierWorkflows:
             if wd not in self._workflows:
                 self._workflows[wd] = {'status':'unavailable','jobs': None}
+    
+    def get_job(self, job_id): # needs error catching
+        for jobs in self._workflows.values():
+            print("jobs  ", jobs['jobs'])
+            if jobs['jobs'] != None:
+                for job in jobs['jobs'].values():
+                    print(job)
+                    print("jj", job._id, " == ",job_id)
+                    if int(job._id) == int(job_id):
+                        print("match")
+                        return job
+            
+        raise Exception("job " + str(job_id) + " not found")
+
 
 
 
@@ -283,6 +297,19 @@ class mnpscrape:
         for idat in self._samples:
             for s in self._samples[idat]:
                 yield s
+    
+    def get_sample(self, sample_id, sample_idat):# needs a lot of error catching ofcourse
+        samples = self._samples[sample_idat]
+        print("samples", samples)
+        
+        for s in samples:
+            print (s._id, "==", sample_id)
+            if str(s._id) == str(sample_id):
+                print("Return!")
+                return s
+        
+        raise Exception("sample not found?!")
+        
     
     def get_samples(self):
         out = []

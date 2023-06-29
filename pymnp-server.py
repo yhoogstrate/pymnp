@@ -55,7 +55,23 @@ def scrape():
     return render_template('scrape.html', posts=[]) # trigger that updating has completed
 
 
-@webapp.route('/sample')
-def sample():
-    return "going to invoke delete command"
+@webapp.route("/sample/<int:sample_id>:<sample_idat>/job/<int:job_id>/remove_job")
+def delete_job(sample_id, sample_idat, job_id):
+    print(sample_id)
+    print(sample_idat)
+    print(job_id)
+    
+    sample = app.get_sample(str(sample_id), str(sample_idat))
+    
+    print(sample)
+    
+    job = sample.get_job(int(job_id))
+    
+    print(job)
+    
+    job.remove(app)
+    
+    return "going to invoke delete command " + str(sample_id) + " -- " + str(job_id)
+
+
 
