@@ -28,7 +28,7 @@
                     <TD><span class="badge badge-primary" style="background-color: darkgray;"><A HREF="" TITLE="redo">[&#8594;]</A></span>{% for job in post._workflows[wf]['jobs'].values() %}
                         <BR />
                         <span title="Job: {{ job._id }}">{% for task in job._status %}{% if task['STATUS'] == "complete" %}<span class="badge badge-primary" style="background-color: darkgreen;width:2px;font-size:10px;" TITLE="{{ task['TASK-NAME'] }}: {{ task['STATUS'] }}">&nbsp;</span>{% else %}<span class="badge badge-primary" style="background-color: orange;width:2px;font-size:10px;" TITLE="{{ task['TASK-NAME'] }}: {{ task['STATUS'] }}  -- {{ task['CREATED-AT'] }}">&nbsp;</span>{% endif %}{% endfor %}
-                        </span>
+                        <span class="badge badge-primary" style="background-color: red;" title="remove job"><A ID="job_{{ job._id }}" ONCLICK="$('#job_{{ job._id }}').text('HREF=/sample/{{ post._id }}/job/{{ job._id }}/remove');">X</A></span>
                     {% endfor %}</TD>
                 {% else %}
                     <TD><span class="badge badge-primary"><NOBR>{{ post._workflows[wf]['status'] }}</NOBR></span></TD>

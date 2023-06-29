@@ -72,19 +72,48 @@ classifierWorkflows.add(classifierWorkflowObj(131, "brain_classifier_v12.8_sampl
 class job:
     _id = None
     _status = None
+    _sample = None
     
-    def __init__(self, jobid):
-        self._id = jobid
+    def __init__(self, jobid, s_sample):
+        self._id = int(jobid)
+        self._sample = s_sample
     
     def get_detailed_info(self, app):
-        response = requests.get('https://www.molecularneuropathology.org/api-v1/workflow-run/'+str(self._id), 
-                headers={'Cookie': app._response_cookie ,
-                 'Content-Type':'application/json',
-                 'X-AUTH-TOKEN': app._response_x_auth})
+        try:
+            response = requests.get('https://www.molecularneuropathology.org/api-v1/workflow-run/'+str(self._id), 
+                    headers={'Cookie': app._response_cookie ,
+                     'Content-Type':'application/json',
+                     'X-AUTH-TOKEN': app._response_x_auth})
+            
+            
+            self._status = response.json()['TASK-RUNS']
+        except:
+            log.warning("failed updating job "+str(self._id)+" at least once, trying again")
+            response = requests.get('https://www.molecularneuropathology.org/api-v1/workflow-run/'+str(self._id), 
+                    headers={'Cookie': app._response_cookie ,
+                     'Content-Type':'application/json',
+                     'X-AUTH-TOKEN': app._response_x_auth})
+            
+            
+            self._status = response.json()['TASK-RUNS']
         
+        #if self._id == 292639:
+        #    self.remove(app)
+
+    
+    def remove(self, app):
+        # idsample: "<...>", idworkflowrun: "<...>"} # note in web interface, idsample = string, idworkflowrun = int
         
-        self._status = response.json()['TASK-RUNS']
-        print(self._status)
+        response = requests.post('https://www.molecularneuropathology.org/api-v1/remove-workflow-run',
+             headers={'Cookie': app._response_cookie ,
+                     'Content-Type':'application/json',
+                     'X-AUTH-TOKEN': app._response_x_auth},
+         json = {"idsample": str(self._sample._id), "idworkflowrun": int(self._id)} )
+
+        out = str(response.json())
+        if out != "Done":
+            raise Exception("Error: " + out)
+        
 
 
 
@@ -130,7 +159,7 @@ class sample:
             if cwf not in self._workflows:
                 self._workflows[cwf] = {'status':'done','jobs':{}}
             
-            self._workflows[cwf]['jobs'][wd['ID']] = job(wd['ID'])
+            self._workflows[cwf]['jobs'][wd['ID']] = job(wd['ID'], self)
             self._workflows[cwf]['jobs'][wd['ID']].get_detailed_info(app)
         
         for wd in classifierWorkflows:
@@ -229,8 +258,11 @@ class mnpscrape:
         
         i = 0
         for _ in raw_out:
-            self.add_sample(sample(_['IDAT'], _['ID'], _['SAMPLE-NAME'], _['CREATED-AT'], _['CHIP-TYPE'], _['EXTRACTION-TYPE']))
-            i += 1
+            if _['SAMPLE-NAME'].find("TCGA") == -1:
+                self.add_sample(sample(_['IDAT'], _['ID'], _['SAMPLE-NAME'], _['CREATED-AT'], _['CHIP-TYPE'], _['EXTRACTION-TYPE']))
+                i += 1
+            else:
+                n -= 1
         
         if i != n:
             raise Exception(str(n) + " samples expected, only "+str(i)+" provided by the query")

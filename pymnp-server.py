@@ -41,7 +41,7 @@ def subsample(app, k):
 def scrape():
     app.update_samples()
     
-    k = 200
+    k = 15
     app._samples = subsample(app, k)
     app._n_samples = k
     
@@ -53,3 +53,9 @@ def scrape():
     # https://www.digitalocean.com/community/tutorials/python-pickle-example
     
     return render_template('scrape.html', posts=[]) # trigger that updating has completed
+
+
+@webapp.route('/sample')
+def sample():
+    return "going to invoke delete command"
+
