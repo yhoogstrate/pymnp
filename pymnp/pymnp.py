@@ -56,16 +56,16 @@ class classifierWorkflowsObj:
 
 
 classifierWorkflows = classifierWorkflowsObj()
-classifierWorkflows.add(classifierWorkflowObj( 114, "sarcoma_classifier_v12.2_sample_report", "3.1", "..." ))
-classifierWorkflows.add(classifierWorkflowObj( 121, "medulloblastoma_classifier_v1.0_sample_report", "3.1", "..." ))
-classifierWorkflows.add(classifierWorkflowObj( 122, "brain_classifier_v11b4_sample_report", "3.1", "..." ))
-classifierWorkflows.add(classifierWorkflowObj( 123, "brain_classifier_v12.5_research_report", "1.0", "..." ))
-classifierWorkflows.add(classifierWorkflowObj( 124, "brain_classifier_v11b4_sample_report", "3.2", "..." ))
-classifierWorkflows.add(classifierWorkflowObj( 125, "brain_classifier_v11b4_sample_report", "3.3", "..." ))
-classifierWorkflows.add(classifierWorkflowObj( 126, "brain_classifier_v12.5_sample_report", "1.1", "..." ))
-classifierWorkflows.add(classifierWorkflowObj( 127, "skin_classifier_v0.1_research_report", "1.0", "..." ))
-classifierWorkflows.add(classifierWorkflowObj( 130, "brain_classifier_v12.8_sample_report", "1.0", "..." )) # should be unavailable
-classifierWorkflows.add(classifierWorkflowObj( 131, "brain_classifier_v12.8_sample_report", "1.1", "..." ))
+classifierWorkflows.add(classifierWorkflowObj(114, "sarcoma_classifier_v12.2_sample_report", "3.1", "..." ))
+classifierWorkflows.add(classifierWorkflowObj(121, "medulloblastoma_classifier_v1.0_sample_report", "3.1", "..." ))
+classifierWorkflows.add(classifierWorkflowObj(122, "brain_classifier_v11b4_sample_report", "3.1", "..." ))
+classifierWorkflows.add(classifierWorkflowObj(123, "brain_classifier_v12.5_research_report", "1.0", "..." ))
+classifierWorkflows.add(classifierWorkflowObj(124, "brain_classifier_v11b4_sample_report", "3.2", "..." ))
+classifierWorkflows.add(classifierWorkflowObj(125, "brain_classifier_v11b4_sample_report", "3.3", "..." ))
+classifierWorkflows.add(classifierWorkflowObj(126, "brain_classifier_v12.5_sample_report", "1.1", "..." ))
+classifierWorkflows.add(classifierWorkflowObj(127, "skin_classifier_v0.1_research_report", "1.0", "..." ))
+classifierWorkflows.add(classifierWorkflowObj(130, "brain_classifier_v12.8_sample_report", "1.0", "..." )) # should be unavailable
+classifierWorkflows.add(classifierWorkflowObj(131, "brain_classifier_v12.8_sample_report", "1.1", "..." ))
 
 
 
@@ -194,7 +194,7 @@ class mnpscrape:
         logging.info("Getting number of samples listed: " + out)
         
         
-        return(int(out))
+        return int(out)
 
 
 
@@ -212,8 +212,7 @@ class mnpscrape:
         
         i = 0
         for _ in raw_out:
-            s = sample(_['IDAT'], _['ID'], _['SAMPLE-NAME'], _['CREATED-AT'], _['CHIP-TYPE'], _['EXTRACTION-TYPE'])
-            self.add_sample(s)
+            self.add_sample(sample(_['IDAT'], _['ID'], _['SAMPLE-NAME'], _['CREATED-AT'], _['CHIP-TYPE'], _['EXTRACTION-TYPE']))
             i += 1
         
         if i != n:
