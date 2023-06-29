@@ -179,6 +179,17 @@ class sample:
             
         raise Exception("job " + str(job_id) + " not found")
 
+    def execute_workflow(self, app, workflow):
+        response = requests.post('https://www.molecularneuropathology.org/api-v1/methylation-sample/execute-workflow',
+             headers={'Cookie': app._response_cookie ,
+                     'Content-Type':'application/json',
+                     'X-AUTH-TOKEN': app._response_x_auth},
+         json = {"idsample": str(self._id), "idworkflow": int(workflow._workflow_id)} )
+
+        out = str(response.json())
+        print(out)
+        #if out != "Done":
+        #    raise Exception("Error: " + out)
 
 
 
@@ -260,6 +271,7 @@ class mnpscrape:
 
     def update_samples(self):
         n = self.get_sample_count() # for validation
+        self.samples = {} # flush
         
         logging.info("Getting sample overview")
         
@@ -272,7 +284,7 @@ class mnpscrape:
         
         i = 0
         for _ in raw_out:
-            if _['SAMPLE-NAME'].find("TCGA") == -1:
+            if _['SAMPLE-NAME'].find("<<<<<<<<<<<<<<TCGA>>>>>>>>>>>") == -1:
                 self.add_sample(sample(_['IDAT'], _['ID'], _['SAMPLE-NAME'], _['CREATED-AT'], _['CHIP-TYPE'], _['EXTRACTION-TYPE']))
                 i += 1
             else:
@@ -300,7 +312,6 @@ class mnpscrape:
     
     def get_sample(self, sample_id, sample_idat):# needs a lot of error catching ofcourse
         samples = self._samples[sample_idat]
-        print("samples", samples)
         
         for s in samples:
             print (s._id, "==", sample_id)

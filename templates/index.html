@@ -21,14 +21,14 @@
             <TD> &nbsp; </TD>
             {% for wf in wfs %}
                 {% if post._workflows[wf]['status'] == "available" %}
-                    <TD><span class="badge badge-primary" style="background-color: darkgray;"><NOBR><A HREF="" TITLE="run">[<B>&#8594;</B>]</A></NOBR></span></TD>
+                    <TD><span class="badge badge-primary" style="background-color: darkgray;"><NOBR><A HREF="#" TITLE="run" ID="exe_{{ post._id}}_{{ wf._workflow_id }}" ONCLICK="$('#exe_{{ post._id}}_{{ wf._workflow_id }}').text('');$.get('/sample/{{ post._id }}:{{ post._idat }}/workflow/{{ wf._workflow_id }}/execute_job');">[<B>&#8594;</B>]</A></NOBR></span></TD>
                 {% elif post._workflows[wf]['status'] == "unavailable" %}
                     <TD><span class="badge badge-primary" style="background-color: red;" title="unavailable"><NOBR>--</NOBR></span></TD>
                 {% elif post._workflows[wf]['status'] == "done" %}
-                    <TD><span class="badge badge-primary" style="background-color: darkgray;"><A HREF="" TITLE="redo">[&#8594;]</A></span>{% for job in post._workflows[wf]['jobs'].values() %}
-                        <BR />
+                    <TD><!-- <span class="badge badge-primary" style="background-color: darkgray;"><A HREF="" TITLE="redo">[&#8594;]</A></span> -->{% for job in post._workflows[wf]['jobs'].values() %}
+                        <NOBR>
                         <span title="Job: {{ job._id }}">{% for task in job._status %}{% if task['STATUS'] == "complete" %}<span class="badge badge-primary" style="background-color: darkgreen;width:2px;font-size:10px;" TITLE="{{ task['TASK-NAME'] }}: {{ task['STATUS'] }}">&nbsp;</span>{% else %}<span class="badge badge-primary" style="background-color: orange;width:2px;font-size:10px;" TITLE="{{ task['TASK-NAME'] }}: {{ task['STATUS'] }}  -- {{ task['CREATED-AT'] }}">&nbsp;</span>{% endif %}{% endfor %}
-                        <span class="badge badge-primary" style="background-color: red;" title="remove job"><A ID="job_{{ job._id }}" HREF="/sample/{{ post._id }}:{{ post._idat }}/job/{{ job._id }}/remove_job" ONCLICK="$('#job_{{ job._id }}').text('');" TARGET="_new">X</A></span>
+                        <span class="badge badge-primary" style="background-color: red;" title="remove job"><A ID="job_{{ job._id }}" HREF="#" ONCLICK="$('#job_{{ job._id }}').text('');$.get('/sample/{{ post._id }}:{{ post._idat }}/job/{{ job._id }}/remove_job');">X</A></span></NOBR>
                     {% endfor %}</TD>
                 {% else %}
                     <TD><span class="badge badge-primary"><NOBR>{{ post._workflows[wf]['status'] }}</NOBR></span></TD>

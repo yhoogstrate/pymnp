@@ -41,9 +41,9 @@ def subsample(app, k):
 def scrape():
     app.update_samples()
     
-    k = 15
-    app._samples = subsample(app, k)
-    app._n_samples = k
+    #k = 4
+    #app._samples = subsample(app, k)
+    #app._n_samples = k
     
     
     for s in tqdm(app):
@@ -74,4 +74,21 @@ def delete_job(sample_id, sample_idat, job_id):
     return "going to invoke delete command " + str(sample_id) + " -- " + str(job_id)
 
 
+
+@webapp.route("/sample/<int:sample_id>:<sample_idat>/workflow/<int:workflow_id>/execute_job")
+def execute_job(sample_id, sample_idat, workflow_id):
+    print(sample_id)
+    print(sample_idat)
+    print(workflow_id)
+    
+    sample = app.get_sample(str(sample_id), str(sample_idat))
+
+    workflow = classifierWorkflows.get(workflow_id)
+    print(workflow)
+    
+    sample.execute_workflow(app, workflow)
+    
+    return 'execting job'
+    
+    
 
