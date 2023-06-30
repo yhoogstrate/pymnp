@@ -28,11 +28,22 @@
     location.reload();
 });
             };
+            
+             function scrape_list() {
+                $( "#scrape-list" ).html( "... updating ..." );
+                
+                $.get( "scrape-list", function( data ) {
+  $( "#scrape-list" ).html( "updated" );
+    location.reload();
+});
+            };
         </script>
         <button onclick="scrape();" id="scrape">
-            update data
+            update all data
         </button>
-        
+        <button onclick="scrape_list();" id="scrape-list">
+            update list only
+        </button>
         
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">

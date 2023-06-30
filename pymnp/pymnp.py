@@ -146,6 +146,8 @@ class sample:
         self._ext = response.json()
         self._workflows = {}
 
+        print(self._ext.keys())
+
         for wd in self._ext['AVAILABLE-WORKFLOWS']:
             cwf = classifierWorkflows.get(wd['ID'])
             
@@ -194,7 +196,22 @@ class sample:
         
         self.get_detailed_info(app) # flush
 
+    def remove(self, app):
+        print("removing command here... ")
+        # post
+        # 
+        # {idsample: "172710"}
+        
+        response = requests.post('https://www.molecularneuropathology.org/api-v1/remove-sample',
+             headers={'Cookie': app._response_cookie ,
+                     'Content-Type':'application/json',
+                     'X-AUTH-TOKEN': app._response_x_auth},
+         json = {"idsample": str(self._id)} )
 
+        out = str(response.json())
+        print(out)
+        
+        app.update_samples_sparse()
 
 
 
@@ -274,7 +291,10 @@ class mnpscrape:
 
     def update_samples(self):
         n = self.get_sample_count() # for validation
+        #n = 25
+        
         self.samples = {} # flush
+        self._n_samples = 0
         
         logging.info("Getting sample overview")
         
@@ -286,17 +306,57 @@ class mnpscrape:
         raw_out = response.json()
         
         i = 0
-        for _ in raw_out:
-            if _['SAMPLE-NAME'].find("<<<<<<<<<<<<<<TCGA>>>>>>>>>>>") == -1:
-                self.add_sample(sample(_['IDAT'], _['ID'], _['SAMPLE-NAME'], _['CREATED-AT'], _['CHIP-TYPE'], _['EXTRACTION-TYPE']))
-                i += 1
-            else:
-                n -= 1
+        for _ in tqdm(raw_out):
+            s = sample(_['IDAT'], _['ID'], _['SAMPLE-NAME'], _['CREATED-AT'], _['CHIP-TYPE'], _['EXTRACTION-TYPE'])
+            s.get_detailed_info(self)
+            self.add_sample(s)
+            i += 1
         
         if i != n:
             raise Exception(str(n) + " samples expected, only "+str(i)+" provided by the query")
         
         return n
+
+    def update_samples_sparse(self):
+        """
+        updates sample list, without refreshing those already present
+        """
+        n = self.get_sample_count() # for validation
+        #n = 27
+        
+        logging.info("Getting sample overview")
+        
+        response = requests.get('https://www.molecularneuropathology.org/api-v1/methylation-samples/list/'+str(n)+'/0', 
+        headers={'Cookie': self._response_cookie ,
+                 'Content-Type':'application/json',
+                 'X-AUTH-TOKEN': self._response_x_auth})
+        
+        raw_out = response.json()
+        
+        existing_samples = []
+        new_samples = []
+        
+        for _ in tqdm(raw_out):
+            s = self.get_sample(_['ID'], _['IDAT'])
+            if s is not None:
+                existing_samples.append(s)
+            else:
+                s = sample(_['IDAT'], _['ID'], _['SAMPLE-NAME'], _['CREATED-AT'], _['CHIP-TYPE'], _['EXTRACTION-TYPE'])
+                s.get_detailed_info(self)
+                new_samples.append(s)
+
+        i = 0
+        self._samples = {}
+        self._n_samples = 0
+        for _ in existing_samples + new_samples:
+            self.add_sample(_)
+            i += 1
+        
+        if i != n:
+            raise Exception(str(n) + " samples expected, only "+str(i)+" provided by the query")
+        
+        return n
+
 
     def add_sample(self, sample_s):
         if sample_s._idat in self._samples:
@@ -313,16 +373,15 @@ class mnpscrape:
             for s in self._samples[idat]:
                 yield s
     
-    def get_sample(self, sample_id, sample_idat):# needs a lot of error catching ofcourse
-        samples = self._samples[sample_idat]
+    def get_sample(self, sample_id, sample_idat):
+        if sample_idat in self._samples:
+            samples = self._samples[sample_idat]
         
-        for s in samples:
-            print (s._id, "==", sample_id)
-            if str(s._id) == str(sample_id):
-                print("Return!")
-                return s
-        
-        raise Exception("sample not found?!")
+            for s in samples:
+                if str(s._id) == str(sample_id):
+                    return s
+            
+        return None
         
     
     def get_samples(self):

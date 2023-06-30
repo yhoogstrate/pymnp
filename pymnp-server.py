@@ -41,18 +41,20 @@ def subsample(app, k):
 def scrape():
     app.update_samples()
     
-    k = 4
-    app._samples = subsample(app, k)
-    app._n_samples = k
-    
-    
-    for s in tqdm(app):
-        s.get_detailed_info(app)
-
     # save
     # https://www.digitalocean.com/community/tutorials/python-pickle-example
     
     return render_template('scrape.html', posts=[]) # trigger that updating has completed
+
+
+@webapp.route('/scrape-list')
+def scrape_list():
+    app.update_samples_sparse()
+    
+    
+    return render_template('scrape.html', posts=[]) # trigger that updating has completed
+
+
 
 
 @webapp.route("/sample/<int:sample_id>:<sample_idat>/job/<int:job_id>/remove_job")
@@ -103,6 +105,20 @@ def refresh(sample_id, sample_idat):
     sample.get_detailed_info(app)
     
     return 'done refreshing'
+
+
+@webapp.route("/sample/<int:sample_id>:<sample_idat>/remove_sample")
+def remove_sample(sample_id, sample_idat):
+    print(sample_id)
+    print(sample_idat)
     
+    sample = app.get_sample(str(sample_id), str(sample_idat))
+    print(sample)
     
+    sample.remove(app)
+    
+    return 'done removing and refreshing'
+
+
+
 
