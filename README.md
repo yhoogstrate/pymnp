@@ -22,8 +22,11 @@ nano config.txt
 
 
 
-# usage
-python run.py
+# usage web server
+
+./scripts/pymnp-server.sh
+
+# downloaded files can be found in ./cache
 
 ls cache
 ```

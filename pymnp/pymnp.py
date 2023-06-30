@@ -114,6 +114,7 @@ class job:
         if out != "Done":
             raise Exception("Error: " + out)
         
+        self._sample.get_detailed_info(app) # flush
 
 
 
@@ -190,6 +191,8 @@ class sample:
         print(out)
         #if out != "Done":
         #    raise Exception("Error: " + out)
+        
+        self.get_detailed_info(app) # flush
 
 
 

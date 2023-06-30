@@ -41,9 +41,9 @@ def subsample(app, k):
 def scrape():
     app.update_samples()
     
-    #k = 4
-    #app._samples = subsample(app, k)
-    #app._n_samples = k
+    k = 4
+    app._samples = subsample(app, k)
+    app._n_samples = k
     
     
     for s in tqdm(app):
@@ -82,13 +82,27 @@ def execute_job(sample_id, sample_idat, workflow_id):
     print(workflow_id)
     
     sample = app.get_sample(str(sample_id), str(sample_idat))
-
+    print(sample)
+    
     workflow = classifierWorkflows.get(workflow_id)
     print(workflow)
     
     sample.execute_workflow(app, workflow)
     
     return 'execting job'
+
+
+@webapp.route("/sample/<int:sample_id>:<sample_idat>/refresh")
+def refresh(sample_id, sample_idat):
+    print(sample_id)
+    print(sample_idat)
+    
+    sample = app.get_sample(str(sample_id), str(sample_idat))
+    print(sample)
+    
+    sample.get_detailed_info(app)
+    
+    return 'done refreshing'
     
     
 
