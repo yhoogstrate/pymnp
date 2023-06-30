@@ -290,8 +290,7 @@ class mnpscrape:
 
 
     def update_samples(self):
-        n = self.get_sample_count() # for validation
-        #n = 25
+        n = self.get_sample_count() # n used to query list
         
         self.samples = {} # flush
         self._n_samples = 0
