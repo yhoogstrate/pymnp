@@ -117,6 +117,26 @@ class job:
         self._sample.get_detailed_info(app) # flush
 
 
+    def restart(self, app):
+        js = {"idsample": str(self._sample._id), "idworkflowrun": int(self._id)}
+        print(js)
+
+        response = requests.post('https://www.molecularneuropathology.org/api-v1/methylation-sample/restart-workflow',
+             headers={'Cookie': app._response_cookie ,
+                     'Content-Type':'application/json',
+                     'X-AUTH-TOKEN': app._response_x_auth},
+         json=js )
+
+        out = str(response.json())
+        print(out)
+        
+        self._sample.get_detailed_info(app) # flush
+
+
+
+
+
+
 
 class sample:
     _idat = None
@@ -146,7 +166,6 @@ class sample:
         self._ext = response.json()
         self._workflows = {}
 
-        print(self._ext.keys())
 
         for wd in self._ext['AVAILABLE-WORKFLOWS']:
             cwf = classifierWorkflows.get(wd['ID'])
@@ -195,6 +214,9 @@ class sample:
         #    raise Exception("Error: " + out)
         
         self.get_detailed_info(app) # flush
+
+
+
 
     def remove(self, app):
         print("removing command here... ")
@@ -291,7 +313,8 @@ class mnpscrape:
 
     def update_samples(self):
         n = self.get_sample_count() # n used to query list
-        
+        #n = 100
+
         self.samples = {} # flush
         self._n_samples = 0
         
@@ -321,7 +344,7 @@ class mnpscrape:
         updates sample list, without refreshing those already present
         """
         n = self.get_sample_count() # for validation
-        #n = 27
+        #n = 100
         
         logging.info("Getting sample overview")
         

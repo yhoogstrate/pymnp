@@ -76,6 +76,26 @@ def delete_job(sample_id, sample_idat, job_id):
     return "going to invoke delete command " + str(sample_id) + " -- " + str(job_id)
 
 
+@webapp.route("/sample/<int:sample_id>:<sample_idat>/job/<int:job_id>/restart_job")
+def restart_job(sample_id, sample_idat, job_id):
+    print(sample_id)
+    print(sample_idat)
+    print(job_id)
+    
+    sample = app.get_sample(str(sample_id), str(sample_idat))
+    
+    print(sample)
+    
+    job = sample.get_job(int(job_id))
+    
+    print(job)
+    print("restart function:")
+    
+    job.restart(app)
+    
+    return "going to invoke delete command " + str(sample_id) + " -- " + str(job_id)
+
+
 
 @webapp.route("/sample/<int:sample_id>:<sample_idat>/workflow/<int:workflow_id>/execute_job")
 def execute_job(sample_id, sample_idat, workflow_id):
