@@ -104,6 +104,8 @@ class job:
     def remove(self, app):
         # idsample: "<...>", idworkflowrun: "<...>"} # note in web interface, idsample = string, idworkflowrun = int
         
+        self._status = {}
+        
         response = requests.post('https://www.molecularneuropathology.org/api-v1/remove-workflow-run',
              headers={'Cookie': app._response_cookie ,
                      'Content-Type':'application/json',
@@ -118,6 +120,9 @@ class job:
 
 
     def restart(self, app):
+        
+        self._status = {}
+        
         js = {"idsample": str(self._sample._id), "idworkflowrun": int(self._id)}
         print(js)
 
@@ -158,13 +163,13 @@ class sample:
         self._extraction_type = s_extraction_type
 
     def get_detailed_info(self, app):
+        self._workflows = {}
         response = requests.get('https://www.molecularneuropathology.org/api-v1/methylation-samples/details/'+str(self._id), 
                 headers={'Cookie': app._response_cookie ,
                  'Content-Type':'application/json',
                  'X-AUTH-TOKEN': app._response_x_auth})
     
         self._ext = response.json()
-        self._workflows = {}
 
 
         for wd in self._ext['AVAILABLE-WORKFLOWS']:
@@ -219,10 +224,7 @@ class sample:
 
 
     def remove(self, app):
-        print("removing command here... ")
-        # post
-        # 
-        # {idsample: "172710"}
+        log.info("removing sample: " + self._id)
         
         response = requests.post('https://www.molecularneuropathology.org/api-v1/remove-sample',
              headers={'Cookie': app._response_cookie ,
@@ -230,10 +232,14 @@ class sample:
                      'X-AUTH-TOKEN': app._response_x_auth},
          json = {"idsample": str(self._id)} )
 
-        out = str(response.json())
-        print(out)
+        try:
+            out = str(response.json())
         
-        app.update_samples_sparse()
+            time.sleep(0.25) # 250ms
+            #self.get_detailed_info(app)
+            app.update_samples_sparse() # automatically reduces size of list
+        except:
+            raise Exception("Failed removing sample: " + str(self._id))
 
 
 

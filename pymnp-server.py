@@ -59,41 +59,60 @@ def scrape_list():
 
 @webapp.route("/sample/<int:sample_id>:<sample_idat>/job/<int:job_id>/remove_job")
 def delete_job(sample_id, sample_idat, job_id):
-    print(sample_id)
-    print(sample_idat)
-    print(job_id)
+    log.info(str(sample_id))
+    log.info(str(sample_idat))
+    log.info(str(job_id))
     
-    sample = app.get_sample(str(sample_id), str(sample_idat))
+    try:
+        sample = app.get_sample(str(sample_id), str(sample_idat))
     
-    print(sample)
+        log.info(str(sample))
+    except:
+        log.error("Could not find sample: " + str(sample_id) + " -- " + str(sample_idat) + " -- " + str(job_id))
+
+        return "error - please refresh"
     
-    job = sample.get_job(int(job_id))
+    try:
+        job = sample.get_job(int(job_id))
+        log.info(str(job))
+    except:
+        sample.get_detailed_info(app)
+        log.error("Could not find job: " + str(sample_id) + " -- " + str(sample_idat) + " -- " + str(job_id))
+
+        return "error - please refresh"
     
-    print(job)
-    
-    job.remove(app)
-    
-    return "going to invoke delete command " + str(sample_id) + " -- " + str(job_id)
+    try:
+        job.remove(app)
+    except:
+        log.error("Could not remove job: " + str(sample_id) + " -- " + str(sample_idat) + " -- " + str(job_id))
+        return "error - please refresh"
+
+    return "done"
 
 
 @webapp.route("/sample/<int:sample_id>:<sample_idat>/job/<int:job_id>/restart_job")
 def restart_job(sample_id, sample_idat, job_id):
-    print(sample_id)
-    print(sample_idat)
-    print(job_id)
+    log.info("restarting job " + str(sample_id) + " -- " + str(sample_idat)+ " -- " + str(job_id))
     
-    sample = app.get_sample(str(sample_id), str(sample_idat))
+    try:
+        sample = app.get_sample(str(sample_id), str(sample_idat))
+        
+        log.info(str(sample))
+    except:
+        log.error("Could not get sample: " + str(sample_id) + " -- " + str(sample_idat))
     
-    print(sample)
-    
-    job = sample.get_job(int(job_id))
-    
-    print(job)
-    print("restart function:")
+    try:
+        job = sample.get_job(int(job_id))
+        
+        log.info(str(job))
+    except:
+        sample.get_detailed_info(app)
+        
+        log.error("Could not get job: " + str(job_id))
     
     job.restart(app)
     
-    return "going to invoke delete command " + str(sample_id) + " -- " + str(job_id)
+    return "done restarting: " + str(sample_id) + " -- " + str(job_id)
 
 
 
@@ -119,8 +138,15 @@ def refresh(sample_id, sample_idat):
     print(sample_id)
     print(sample_idat)
     
-    sample = app.get_sample(str(sample_id), str(sample_idat))
-    print(sample)
+    try:
+        sample = app.get_sample(str(sample_id), str(sample_idat))
+
+        log.info(str(sample))
+    except:
+        log.error("Could not find sample: " + str(sample_id) + " -- " + str(sample_idat))
+
+        return "error - please refresh"
+
     
     sample.get_detailed_info(app)
     
