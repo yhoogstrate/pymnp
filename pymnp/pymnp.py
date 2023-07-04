@@ -7,6 +7,7 @@ from tqdm import tqdm
 import shutil
 import os
 import logging
+import copy
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -85,21 +86,24 @@ class job:
                      'Content-Type':'application/json',
                      'X-AUTH-TOKEN': app._response_x_auth})
             
-            
             self._status = response.json()['TASK-RUNS']
-        except:
-            log.warning("failed updating job "+str(self._id)+" at least once, trying again")
-            response = requests.get('https://www.molecularneuropathology.org/api-v1/workflow-run/'+str(self._id), 
-                    headers={'Cookie': app._response_cookie ,
-                     'Content-Type':'application/json',
-                     'X-AUTH-TOKEN': app._response_x_auth})
+        except requests.exceptions.RequestException as e:
+            log.warning("Could not get detailed info of sample: " + str(self._id) + " -- second attempt after 3 sec")
             
-            
-            self._status = response.json()['TASK-RUNS']
-        
-        #if self._id == 292639:
-        #    self.remove(app)
+            time.sleep(3)
 
+            try:
+                log.warning("failed updating job "+str(self._id)+" at least once, trying again")
+                response = requests.get('https://www.molecularneuropathology.org/api-v1/workflow-run/'+str(self._id), 
+                        headers={'Cookie': app._response_cookie ,
+                         'Content-Type':'application/json',
+                         'X-AUTH-TOKEN': app._response_x_auth})
+                
+                
+                self._status = response.json()['TASK-RUNS']
+        
+            except requests.exceptions.RequestException as e:
+                log.error("Could not get detailed info of sample: " + str(self._id) + " after two https attempts")
     
     def remove(self, app):
         # idsample: "<...>", idworkflowrun: "<...>"} # note in web interface, idsample = string, idworkflowrun = int
@@ -163,35 +167,52 @@ class sample:
         self._extraction_type = s_extraction_type
 
     def get_detailed_info(self, app):
+        new_workflows = {}
         self._workflows = {}
-        response = requests.get('https://www.molecularneuropathology.org/api-v1/methylation-samples/details/'+str(self._id), 
+        
+        
+        try:
+            response = requests.get('https://www.molecularneuropathology.org/api-v1/methylation-samples/details/'+str(self._id), 
                 headers={'Cookie': app._response_cookie ,
                  'Content-Type':'application/json',
                  'X-AUTH-TOKEN': app._response_x_auth})
-    
+        except requests.exceptions.RequestException as e:  # This is the correct syntax
+            raise SystemExit(e)
+        
         self._ext = response.json()
+        self._workflows = {}
 
+        if 'AVAILABLE-WORKFLOWS' not in self._ext:
+            self._ext['AVAILABLE-WORKFLOWS'] = {}
+            log.error("incomplete update response: " + str(self._ext))
+            
+        if 'EXECUTED-WORKFLOWS' not in self._ext:
+            self._ext['EXECUTED-WORKFLOWS'] = {}
+            log.error("incomplete update response: " + str(self._ext))
 
         for wd in self._ext['AVAILABLE-WORKFLOWS']:
             cwf = classifierWorkflows.get(wd['ID'])
             
-            if cwf in self._workflows:
-                raise Exception("Duplicate workflow " + wd['ID'])
+            if cwf in new_workflows:
+                log.error("Duplicate workflow " + wd['ID'], " -- in http response?")
+                raise Exception("Duplicate workflow " + wd['ID'], " -- in http response?")
             
-            self._workflows[cwf] = {'status':'available','jobs':{}}
+            new_workflows[cwf] = {'status':'available','jobs':{}}
         
         for wd in self._ext['EXECUTED-WORKFLOWS']: # may contain duplicate entries - one for each finished job
             cwf = classifierWorkflows.get(wd['WORKFLOW-ID'])
             
-            if cwf not in self._workflows:
-                self._workflows[cwf] = {'status':'done','jobs':{}}
+            if cwf not in new_workflows:
+                new_workflows[cwf] = {'status':'done','jobs':{}}
             
-            self._workflows[cwf]['jobs'][wd['ID']] = job(wd['ID'], self)
-            self._workflows[cwf]['jobs'][wd['ID']].get_detailed_info(app)
+            new_workflows[cwf]['jobs'][wd['ID']] = job(wd['ID'], self)
+            new_workflows[cwf]['jobs'][wd['ID']].get_detailed_info(app)
         
         for wd in classifierWorkflows:
-            if wd not in self._workflows:
-                self._workflows[wd] = {'status':'unavailable','jobs': None}
+            if wd not in new_workflows:
+                new_workflows[wd] = {'status':'unavailable','jobs': None}
+        
+        self._workflows = new_workflows
     
     def get_job(self, job_id): # needs error catching
         for jobs in self._workflows.values():
@@ -283,8 +304,16 @@ class mnpscrape:
         self.get_config()
         
         logging.info("Authenticating to the portal")
-        self._response_x_auth = requests.post('https://www.molecularneuropathology.org/api-v1/authenticate', json = {"email": self._user,"password": self._pwd} ).json()['X-AUTH-TOKEN']
-        self._response_cookie = requests.post('https://www.molecularneuropathology.org/authenticate', data = {"email":self._user,"password":self._pwd} ).headers['Set-Cookie']
+        
+        try:
+            self._response_x_auth = requests.post('https://www.molecularneuropathology.org/api-v1/authenticate', json = {"email": self._user,"password": self._pwd} ).json()['X-AUTH-TOKEN']
+        except requests.exceptions.RequestException as e:  # This is the correct syntax
+            raise SystemExit(e)
+        
+        try:
+            self._response_cookie = requests.post('https://www.molecularneuropathology.org/authenticate', data = {"email":self._user,"password":self._pwd} ).headers['Set-Cookie']
+        except requests.exceptions.RequestException as e:  # This is the correct syntax
+            raise SystemExit(e)
         
         # remove from memory, credentials have been used, respones are enough
         self._user = None
@@ -321,7 +350,7 @@ class mnpscrape:
         n = self.get_sample_count() # n used to query list
         #n = 100
 
-        self.samples = {} # flush
+        self._samples = {} # flush
         self._n_samples = 0
         
         logging.info("Getting sample overview")
@@ -374,6 +403,7 @@ class mnpscrape:
                 new_samples.append(s)
 
         i = 0
+        
         self._samples = {}
         self._n_samples = 0
         for _ in existing_samples + new_samples:
