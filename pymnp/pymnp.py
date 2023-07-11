@@ -73,10 +73,12 @@ classifierWorkflows.add(classifierWorkflowObj(131, "brain_classifier_v12.8_sampl
 class job:
     _id = None
     _status = None
+    _workflow = None
     _sample = None
     
-    def __init__(self, jobid, s_sample):
+    def __init__(self, jobid, s_workflow, s_sample):
         self._id = int(jobid)
+        self._workflow = s_workflow
         self._sample = s_sample
     
     def get_detailed_info(self, app):
@@ -128,8 +130,7 @@ class job:
         self._status = {}
         
         js = {"idsample": str(self._sample._id), "idworkflowrun": int(self._id)}
-        print(js)
-
+        
         response = requests.post('https://www.molecularneuropathology.org/api-v1/methylation-sample/restart-workflow',
              headers={'Cookie': app._response_cookie ,
                      'Content-Type':'application/json',
@@ -141,8 +142,51 @@ class job:
         
         self._sample.get_detailed_info(app) # flush
 
+    def get_file_name(self):
+        return "".join([
+        "cache/",
 
+        # sample
+        str(self._sample._idat),
+        "__",
+        str(self._sample._name),
+        "__",
+        str(self._sample._id),
+        "____",
+        
+        # workflow
+        str(self._workflow._workflow_name_full),
+        "__v",
+        str(self._workflow._workflow_version),
+        "__",
+        str(self._workflow._workflow_id),
+        "____",
+        
+        # run
+        "run-",
+        str(self._id),
+        ".zip"])
 
+    def is_downloadable(self):
+        for task in self._status:
+            if task['STATUS'] != "complete":
+                return False
+        
+        if os.path.isfile(self.get_file_name()):
+            return False
+        else:
+            return True
+
+    def download(self, app):
+        fn = self.get_file_name()
+        log.info("Downloading: "+fn)
+        
+        with requests.get("https://www.molecularneuropathology.org/api-v1/workflow-run-dowload-complete/" + str(self._id),
+         headers={'Cookie': app._response_cookie,
+         'Accept': 'application/zip',
+            'X-AUTH-TOKEN': app._response_x_auth}, stream=True) as r:
+            with open(fn, "wb") as fh:
+                shutil.copyfileobj(r.raw, fh)
 
 
 
@@ -205,7 +249,7 @@ class sample:
             if cwf not in new_workflows:
                 new_workflows[cwf] = {'status':'done','jobs':{}}
             
-            new_workflows[cwf]['jobs'][wd['ID']] = job(wd['ID'], self)
+            new_workflows[cwf]['jobs'][wd['ID']] = job(wd['ID'], cwf, self)
             new_workflows[cwf]['jobs'][wd['ID']].get_detailed_info(app)
         
         for wd in classifierWorkflows:
@@ -348,7 +392,7 @@ class mnpscrape:
 
     def update_samples(self):
         n = self.get_sample_count() # n used to query list
-        #n = 100
+        #n = 3
 
         self._samples = {} # flush
         self._n_samples = 0
@@ -368,11 +412,11 @@ class mnpscrape:
             s.get_detailed_info(self)
             self.add_sample(s)
             i += 1
+            
+            yield s
         
         if i != n:
             raise Exception(str(n) + " samples expected, only "+str(i)+" provided by the query")
-        
-        return n
 
     def update_samples_sparse(self):
         """

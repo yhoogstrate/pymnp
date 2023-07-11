@@ -1,14 +1,39 @@
 #!/usr/bin/env python
 
 
+from tqdm import tqdm
+from pymnp.pymnp import *
+
+
+
+def main():
+    app = mnpscrape()
+    app.login()
+    
+    for sample in tqdm(app.update_samples()):
+        for workflow in sample._workflows:
+            #print(workflow)
+            #print(sample._workflows[workflow])
+        
+            if sample._workflows[workflow]['jobs'] is not None:
+                for job in sample._workflows[workflow]['jobs'].values():
+                    if job.is_downloadable():
+                        job.download(app)
+
+
+
+main()
+
+
+
+"""
+
 import requests
 import math
-from tqdm import tqdm
 import shutil
 import os
 
 
-from mnpscrape import *
 
 
 def get_config():
@@ -142,6 +167,10 @@ def main():
     
 
 main()
+
+
+
+"""
 
 
 
