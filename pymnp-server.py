@@ -39,7 +39,8 @@ def subsample(app, k):
 
 @webapp.route('/scrape')
 def scrape():
-    app.update_samples()
+    for _ in app.update_samples():
+        pass
     
     # save
     # https://www.digitalocean.com/community/tutorials/python-pickle-example

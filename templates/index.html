@@ -68,7 +68,8 @@
                     <TD><!-- <span class="badge badge-primary" style="background-color: darkgray;"><A HREF="" TITLE="redo">[&#8594;]</A></span> -->{% for job in post._workflows[wf]['jobs'].values() %}
                         <NOBR>
                         <span title="Job: {{ job._id }}">
-                        {% for task in job._status %}<span class="badge badge-primary" style="background-color: {% if task['STATUS'] == "complete" %}darkgreen{% elif task['STATUS'] == "started" %}yellow{% else %}orange{% endif %};width:2px;font-size:10px;" TITLE="{{ task['TASK-NAME'] }}: {{ task['STATUS'] }}  -- {{ task['CREATED-AT'] }}">&nbsp;</span>{% endfor %}
+                        <span class="badge badge-primary" style="background-color: blue;{%if job.is_downloaded() %}color: white;{% else %}color: blue; opacity: 0.25;{% endif %}" title="job {%if job.is_downloaded() == False %}not {% endif %}downloaded"><B>&#x2713;</B></span>
+                        {% for task in job._status %}<span class="badge badge-primary" style="background-color: {% if task['STATUS'] == "complete" %}darkgreen{% elif task['STATUS'] == "started" %}yellow{% else %}orange{% endif %};width:2px;font-size:10px;" TITLE="{{ task['TASK-NAME'] }}: {{ task['STATUS'] }} -- {{ task['CREATED-AT'] }}">&nbsp;</span>{% endfor %}
                         
                         
                         <span class="badge badge-primary" style="background-color: orange;" title="restart job"><A ID="restart_job_{{ job._id }}" style="cursor: pointer;" ONCLICK="$('#restart_job_{{ job._id }}').text('');$('#remove_job_{{ job._id }}').text('');$.get('/sample/{{ post._id }}:{{ post._idat }}/job/{{ job._id }}/restart_job');"><B>&#8634;</B></A></span>

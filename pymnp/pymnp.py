@@ -73,7 +73,7 @@ classifierWorkflows.add(classifierWorkflowObj(131, "brain_classifier_v12.8_sampl
 class job:
     _id = None
     _status = None
-    _workflow = None
+    _workflow = None # rename to _tasks
     _sample = None
     
     def __init__(self, jobid, s_workflow, s_sample):
@@ -89,6 +89,7 @@ class job:
                      'X-AUTH-TOKEN': app._response_x_auth})
             
             self._status = response.json()['TASK-RUNS']
+        
         except requests.exceptions.RequestException as e:
             log.warning("Could not get detailed info of sample: " + str(self._id) + " -- second attempt after 3 sec")
             
@@ -167,19 +168,22 @@ class job:
         str(self._id),
         ".zip"])
 
+    def is_downloaded(self):
+        if os.path.isfile(self.get_file_name()):
+            return True
+        else:
+            return False
+
     def is_downloadable(self):
         for task in self._status:
             if task['STATUS'] != "complete":
                 return False
         
-        if os.path.isfile(self.get_file_name()):
-            return False
-        else:
-            return True
+        return not self.is_downloaded()
 
     def download(self, app):
         fn = self.get_file_name()
-        log.info("Downloading: "+fn)
+        log.info("Downloading: "+str(self._sample._name[0:25]) + " - " + str(self._workflow._workflow_name_short)[0:20] + "v"+str(self._workflow._workflow_version)+" - " + str(self._id))
         
         with requests.get("https://www.molecularneuropathology.org/api-v1/workflow-run-dowload-complete/" + str(self._id),
          headers={'Cookie': app._response_cookie,
@@ -392,12 +396,11 @@ class mnpscrape:
 
     def update_samples(self):
         n = self.get_sample_count() # n used to query list
-        #n = 3
 
         self._samples = {} # flush
         self._n_samples = 0
         
-        logging.info("Getting sample overview")
+        logging.info("Getting sample overview -- n="+str(n))
         
         response = requests.get('https://www.molecularneuropathology.org/api-v1/methylation-samples/list/'+str(n)+'/0', 
         headers={'Cookie': self._response_cookie ,
@@ -405,6 +408,7 @@ class mnpscrape:
                  'X-AUTH-TOKEN': self._response_x_auth})
         
         raw_out = response.json()
+        log.info("update samples: " + str(raw_out)[0:100])
         
         i = 0
         for _ in tqdm(raw_out):

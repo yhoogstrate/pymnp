@@ -23,10 +23,10 @@
             function scrape() {
                 $( "#scrape" ).html( "... updating ..." );
                 
-                $.get( "scrape", function( data ) {
-  $( "#scrape" ).html( "updated" );
-    location.reload();
-});
+                $.get( "/scrape", function( data ) {
+                  $( "#scrape" ).html( "updated" );
+                    location.reload();
+                });
             };
             
              function scrape_list() {
