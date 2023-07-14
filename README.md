@@ -24,9 +24,29 @@ nano config.txt
 
 # usage web server
 
+1. configure credentials (see above)
+
+```
+virtualenv -p python 3 .venv
+source .venv/bin/activate
+
+pip install --no-cache-dir -U .
+
 ./scripts/pymnp-server.sh
+```
 
-# downloaded files can be found in ./cache
 
-ls cache
+# usage downloader
+
+1. configure credentials (see above)
+
+```
+virtualenv -p python 3 .venv
+source .venv/bin/activate
+
+pip install --no-cache-dir -U .
+
+./bin/api_example_download_all.py
+
+ls ./cache
 ```
