@@ -7,26 +7,49 @@ classifier portal at https://www.molecularneuropathology.org/mnp/
 ## Installation & usage
 
 ```
-git clone https://github.com/yhoogstrate/MolecularNeuropathology-batch-downloader.git
-cd MolecularNeuropathology-batch-downloader
+git clone https://github.com/yhoogstrate/pymnp.git
+cd pymnp
 
 virtualenv -p python3 .venv
 source .venv/bin/activate
 
 pip install -r requirements.txt -U .
+```
 
-cp config.txt.example config.txt
 
 # change to appropriate credentials:
-nano config.txt
+```
+cp config.txt.example config.txt
 
+nano config.txt
+```
 
 
 # usage web server
 
+1. configure credentials (see above)
+
+```
+virtualenv -p python 3 .venv
+source .venv/bin/activate
+
+pip install --no-cache-dir -U .
+
 ./scripts/pymnp-server.sh
+```
 
-# downloaded files can be found in ./cache
 
-ls cache
+# usage downloader
+
+1. configure credentials (see above)
+
+```
+virtualenv -p python 3 .venv
+source .venv/bin/activate
+
+pip install --no-cache-dir -U .
+
+./bin/api_example_download_all.py
+
+ls ./cache
 ```
