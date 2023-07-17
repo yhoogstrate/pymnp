@@ -146,6 +146,14 @@ class job:
     def get_file_name(self):
         return "".join([
         "cache/",
+        
+        str(self._workflow._workflow_name_full),
+        "__v",
+        str(self._workflow._workflow_version),
+        "__",
+        str(self._workflow._workflow_id),
+        
+        "/",
 
         # sample
         str(self._sample._idat),
@@ -183,6 +191,11 @@ class job:
 
     def download(self, app):
         fn = self.get_file_name()
+        
+        path = os.path.dirname(fn)
+        if not os.path.exists(path):
+            os.makedirs(path, exist_ok=True)
+        
         log.info("Downloading: "+str(self._sample._name[0:25]) + " - " + str(self._workflow._workflow_name_short)[0:20] + "v"+str(self._workflow._workflow_version)+" - " + str(self._id))
         
         with requests.get("https://www.molecularneuropathology.org/api-v1/workflow-run-dowload-complete/" + str(self._id),
