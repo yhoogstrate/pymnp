@@ -407,7 +407,7 @@ class mnpscrape:
 
 
 
-    def update_samples(self):
+    def update_samples(self, detailed = True):
         n = self.get_sample_count() # n used to query list
 
         self._samples = {} # flush
@@ -426,7 +426,10 @@ class mnpscrape:
         i = 0
         for _ in tqdm(raw_out):
             s = sample(_['IDAT'], _['ID'], _['SAMPLE-NAME'], _['CREATED-AT'], _['CHIP-TYPE'], _['EXTRACTION-TYPE'])
-            s.get_detailed_info(self)
+            
+            if detailed:
+                s.get_detailed_info(self)
+            
             self.add_sample(s)
             i += 1
             
