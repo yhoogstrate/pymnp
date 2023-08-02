@@ -306,7 +306,7 @@ class sample:
 
 
     def remove(self, app):
-        log.info("removing sample: " + self._id)
+        log.info("removing sample: " + str(self._id) + "  --  " + str(self._idat) + " -- " + str(self._name))
         
         response = requests.post('https://www.molecularneuropathology.org/api-v1/remove-sample',
              headers={'Cookie': app._response_cookie ,
