@@ -21,7 +21,7 @@ setup(
     version=VERSION.get("__version__", "0.0.0"),
     scripts=['bin/api_example_download_all.py'],
     packages=find_packages(where=".", exclude=["tests"]),
-    #install_requires=[],
+    install_requires=["tqdm", "requests"],
     classifiers=[
         "Development Status :: 1 - Planning",
         "Programming Language :: Python :: 3.0",
