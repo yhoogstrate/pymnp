@@ -67,6 +67,7 @@ classifierWorkflows.add(classifierWorkflowObj(126, "brain_classifier_v12.5_sampl
 classifierWorkflows.add(classifierWorkflowObj(127, "skin_classifier_v0.1_research_report", "1.0", "..." ))
 classifierWorkflows.add(classifierWorkflowObj(130, "brain_classifier_v12.8_sample_report", "1.0", "..." )) # should be unavailable
 classifierWorkflows.add(classifierWorkflowObj(131, "brain_classifier_v12.8_sample_report", "1.1", "..." ))
+classifierWorkflows.add(classifierWorkflowObj(132, "sarcoma_classifier_v12.3_sample_report", "1.0", "..." ))
 
 
 
