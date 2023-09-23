@@ -31,27 +31,32 @@ nano config.txt
 
 # usage web server
 
-1. configure credentials (see above)
+1. install (see above)
+2. configure credentials (see above)
+3. run the proxy server:
 
 ```
 virtualenv -p python 3 .venv
 source .venv/bin/activate
 
-pip install --no-cache-dir -U .
-
-./scripts/pymnp-server.sh
+./scripts/pymnp-proxy-server.sh
 ```
+
+4. go to your browser and open: http://127.0.0.1:5000/
+5. press the `[update-all-data]`-button
+6. press `[f5]`
 
 
 # usage downloader
 
-1. configure credentials (see above)
+1. ensure you have completed jobs
+2. install (see above)
+3. configure credentials (see above)
+4. run the batch downloader:
 
 ```
 virtualenv -p python 3 .venv
 source .venv/bin/activate
-
-pip install --no-cache-dir -U .
 
 ./bin/api_example_download_all.py
 
