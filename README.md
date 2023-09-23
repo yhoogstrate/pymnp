@@ -1,8 +1,12 @@
 pymnp - python API to access the MolecularNeuropathology web portal
 -------------------------------------------------------------------
 
-Python API for batch downloading reports present in the (brain)
-classifier portal at https://www.molecularneuropathology.org/mnp/
+Python API for accessing: https://www.molecularneuropathology.org/mnp/
+ - Plus proxy-server with new all-sample all-status interface, allowing re-running, killing and starting new jobs (`./scripts/pymnp-proxy-server.sh`).
+ - Plus executable downloading and caching all completed jobs (`./bin/api_example_download_all.py`).
+
+![pymnp](https://github.com/yhoogstrate/pymnp/raw/master/static/screenshot_01.png)
+
 
 ## Installation & usage
 
