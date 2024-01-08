@@ -230,8 +230,6 @@ class sample:
 
     def get_detailed_info(self, app):
         new_workflows = {}
-        self._workflows = {}
-        
         
         try:
             response = requests.get('https://www.molecularneuropathology.org/api-v1/methylation-samples/details/'+str(self._id), 
@@ -242,7 +240,6 @@ class sample:
             raise SystemExit(e)
         
         self._ext = response.json()
-        self._workflows = {}
 
         if 'AVAILABLE-WORKFLOWS' not in self._ext:
             self._ext['AVAILABLE-WORKFLOWS'] = {}
