@@ -230,6 +230,7 @@ class sample:
 
     def get_detailed_info(self, app):
         new_workflows = {}
+        #'@todo this._workflows = "updating"
         
         try:
             response = requests.get('https://www.molecularneuropathology.org/api-v1/methylation-samples/details/'+str(self._id), 
