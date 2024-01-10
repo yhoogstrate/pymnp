@@ -110,7 +110,7 @@ class job:
             except requests.exceptions.RequestException as e:
                 log.error("Could not get detailed info of sample: " + str(self._id) + " after two https attempts")
     
-    def remove(self, app):
+    def remove(self, app, flush=True):
         # idsample: "<...>", idworkflowrun: "<...>"} # note in web interface, idsample = string, idworkflowrun = int
         
         self._status = {}
@@ -125,7 +125,8 @@ class job:
         if out != "Done":
             raise Exception("Error: " + out)
         
-        self._sample.get_detailed_info(app) # flush
+        if flush:
+            self._sample.get_detailed_info(app) # flush
 
 
     def restart(self, app):
@@ -210,7 +211,9 @@ class job:
         if not is_valid_zipfile(fn):
             os.remove(fn)
             log.warning("Seems like an invalid file is accessible at the portal. The downloaded file and job will be removed automatically: " + fn)
-            self.remove(app)
+            #self.remove(app)
+            
+            self._sample.remove_all_jobs(app) # nasty glitch in the portal
 
 
 
@@ -279,10 +282,11 @@ class sample:
                 new_workflows[wd] = {'status':'unavailable','jobs': None}
         
         self._workflows = new_workflows
-    
+
+
     def get_job(self, job_id): # needs error catching
         for jobs in self._workflows.values():
-            print("jobs  ", jobs['jobs'])
+            #print("jobs  ", jobs['jobs'])
             if jobs['jobs'] != None:
                 for job in jobs['jobs'].values():
                     print(job)
@@ -292,6 +296,27 @@ class sample:
                         return job
             
         raise Exception("job " + str(job_id) + " not found")
+    
+    def remove_all_jobs(self, app):
+        """ in the rare case in which the server returns empty zip files, all jobs need to be removed before rerunning. ..."""
+        log.warning("Removing all jobs for: "+self._idat)
+        
+        n = 0
+        for workflow_id in self._workflows:
+            workflow = self._workflows[workflow_id]
+            
+            if 'jobs' in workflow and workflow['jobs'] is not None:
+                for job_id in workflow['jobs']:
+                    job = workflow['jobs'][job_id]
+                    log.info(" - Job: "+str(job_id) + " ("+str(workflow_id._workflow_name_short)+")")
+                    job.remove(app, False) # and do not flush sample
+                    
+                    n += 1
+        
+        if n > 0:
+            # flush sample once
+            self.get_detailed_info(app)
+
 
     def execute_workflow(self, app, workflow):
         response = requests.post('https://www.molecularneuropathology.org/api-v1/methylation-sample/execute-workflow',
@@ -426,7 +451,7 @@ class mnpscrape:
                  'X-AUTH-TOKEN': self._response_x_auth})
         
         raw_out = response.json()
-        log.info("update samples: " + str(raw_out)[0:100])
+        log.info("update samples: n=" + str(len(raw_out)))
         
         i = 0
         for _ in tqdm(raw_out):
