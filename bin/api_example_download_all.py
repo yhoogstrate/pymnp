@@ -18,6 +18,8 @@ def main():
                 for job in sample._workflows[workflow]['jobs'].values():
                     if job.is_downloadable():
                         job.download(app)
+                        
+                        
 
 
 

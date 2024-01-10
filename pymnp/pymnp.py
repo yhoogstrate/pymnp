@@ -4,6 +4,7 @@
 import requests
 import math
 from tqdm import tqdm
+import subprocess
 import shutil
 import os
 import logging
@@ -205,6 +206,11 @@ class job:
             'X-AUTH-TOKEN': app._response_x_auth}, stream=True) as r:
             with open(fn, "wb") as fh:
                 shutil.copyfileobj(r.raw, fh)
+        
+        if not is_valid_zipfile(fn):
+            os.remove(fn)
+            log.warning("Seems like an invalid file is accessible at the portal. The downloaded file and job will be removed automatically: " + fn)
+            self.remove(app)
 
 
 
@@ -519,7 +525,7 @@ class mnpscrape:
 
 
 
-
+"""
 def download_file(cookie, x_auth_token, fid, filename_out):
     with requests.get("https://www.molecularneuropathology.org/api-v1/workflow-run-dowload-complete/" + str(fid),
      headers={'Cookie': cookie,
@@ -527,8 +533,11 @@ def download_file(cookie, x_auth_token, fid, filename_out):
         'X-AUTH-TOKEN': x_auth_token}, stream=True) as r:
         with open(filename_out, "wb") as fh:
             shutil.copyfileobj(r.raw, fh)
+"""
 
-
-
+def is_valid_zipfile(zipfile):
+    result = subprocess.run(['unzip', '-t', zipfile], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        
+    return (result.returncode == 0)
 
 
