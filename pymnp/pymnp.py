@@ -544,6 +544,7 @@ class mnpscrape:
         
         return out
     
+    
     def __len__(self):
         return self._n_samples
 
