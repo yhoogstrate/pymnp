@@ -10,6 +10,8 @@ def main():
     app = mnpscrape()
     app.login()
     
+    f = 0
+    
     for sample in tqdm(app.update_samples(detailed=False)):
         
         if len(sys.argv) <= 1 or (sample._name.find(sys.argv[1]) > -1):
@@ -24,7 +26,9 @@ def main():
                             job.download(app)
 
         else:
-            print("Excluded by filter: "+sample._name)
+            f += 1
+    
+    print("Excluded by filter: "+str(f))
 
 
 
