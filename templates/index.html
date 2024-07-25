@@ -57,7 +57,7 @@
             <TD> &nbsp;&nbsp;&nbsp;&nbsp; </TD>
             <TD><span class="badge badge-primary" style="background-color: darkgray;"><NOBR><A style="cursor: pointer;" TITLE="refresh data in back-end" ID="refresh_{{ post._id}}" ONCLICK="$('#refresh_{{ post._id}}').text('');$.get('/sample/{{ post._id }}:{{ post._idat }}/refresh');">[<B>&#8634;</B>]</A></NOBR></span></TD>
             
-            <TD style="font-color:gray;"> &nbsp;&nbsp;|&nbsp;&nbsp; </TD>
+            <TD style="font-color:gray;"><nobr>&nbsp;&nbsp;|&nbsp;&nbsp;</nobr></TD>
             
             {% for wf in wfs %}
                 {% if post._workflows[wf]['status'] == "available" %}
@@ -69,7 +69,7 @@
                         <NOBR>
                         <span title="Job: {{ job._id }}">
                         <span class="badge badge-primary" style="background-color: blue;{%if job.is_downloaded() %}color: white;{% else %}color: blue; opacity: 0.25;{% endif %}" title="job {%if job.is_downloaded() == False %}not {% endif %}downloaded"><B>&#x2713;</B></span>
-                        {% for task in job._status %}<span class="badge badge-primary" style="background-color: {% if task['STATUS'] == "complete" %}darkgreen{% elif task['STATUS'] == "started" %}yellow{% elif task['STATUS'] == "error" %}red{% else %}orange{% endif %};width:2px;font-size:10px;" TITLE="{{ task['TASK-NAME'] }}: {{ task['STATUS'] }} -- {{ task['CREATED-AT'] }}">&nbsp;</span>{% endfor %}
+                        {% for task in job._status %}<span class="badge badge-primary" style="background-color: {% if task['STATUS'] == 'complete' %}darkgreen{% elif task['STATUS'] == 'started' %}yellow{% elif task['STATUS'] == 'error' %}red{% else %}orange{% endif %};width:2px;font-size:10px;" TITLE="{{ task['TASK-NAME'] }}: {{ task['STATUS'] }} -- {{ task['CREATED-AT'] }}">&nbsp;</span>{% endfor %}
                         
                         
                         <span class="badge badge-primary" style="background-color: orange;" title="restart job"><A ID="restart_job_{{ job._id }}" style="cursor: pointer;" ONCLICK="$('#restart_job_{{ job._id }}').text('');$('#remove_job_{{ job._id }}').text('');$.get('/sample/{{ post._id }}:{{ post._idat }}/job/{{ job._id }}/restart_job');"><B>&#8634;</B></A></span>
