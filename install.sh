@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# if setting up virtualenv/pip causes trouble:
+# rm -Rf ~/.cache/pip/ ~/.cache/pip-tools/
 
 if [ ! -d ".venv" ] 
 then
